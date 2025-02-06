@@ -14,12 +14,20 @@ export default defineConfig({
     },
   },
   build: {
+    lib: {
+      entry: 'src/main.ts',
+      name: 'indexedDbBrowser',
+      formats: ['iife'],
+      fileName: 'assets/index',
+    },
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
       },
     },
+  },
+  define: {
+    'process.env': process.env,
   },
 })

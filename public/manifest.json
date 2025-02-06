@@ -11,10 +11,16 @@
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["\u003Call_urls>"],
+      "js": ["/assets/index.iife.js"]
+    }
+  ],
   "web_accessible_resources": [
     {
       "resources": ["assets/index.js", "assets/index.css"],
-      "matches": ["<all_urls>"]
+      "matches": ["\u003Call_urls>"]
     }
   ]
 }

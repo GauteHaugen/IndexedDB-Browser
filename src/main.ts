@@ -1,35 +1,25 @@
-import './assets/main.css'
+import './assets/main.css';
 
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 
-class IndexedDbBrowser extends HTMLElement {
-  constructor() {
-    super()
+const extensionContainer = document.createElement('div');
+extensionContainer.id = 'indexed-db-browser-container';
+document.body.appendChild(extensionContainer);
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+const shadowRoot = extensionContainer.attachShadow({ mode: 'open' });
 
-    const indexedDbBrowserContainer = document.getElementById('indexed-db-browser-container')
-    const cssUrl = indexedDbBrowserContainer?.dataset.cssUrl
+const appContainer = document.createElement('div');
+appContainer.id = 'indexed-db-browser-app';
+Object.assign(appContainer.style, {
+  position: 'absolute',
+});
+shadowRoot.appendChild(appContainer);
 
-    if (cssUrl) {
-      const link = document.createElement('link')
-      link.href = cssUrl
-      link.rel = 'stylesheet'
-      shadowRoot.appendChild(link)
-    }
+const app = createApp(App);
+app.mount(appContainer);
 
-    const appContainer = document.createElement('div')
-    appContainer.id = 'app'
-    Object.assign(appContainer.style, {
-      position: 'absolute',
-    })
-    shadowRoot.appendChild(appContainer)
-
-    const app = createApp(App)
-
-    app.mount(appContainer)
-  }
-}
-
-customElements.define('indexed-db-browser', IndexedDbBrowser)
+// const link = document.createElement('link')
+// link.href = cssUrl
+// link.rel = 'stylesheet'
+// shadowRoot.appendChild(link)

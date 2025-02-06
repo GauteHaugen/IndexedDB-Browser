@@ -1,40 +1,36 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
-const databases = ref<Array<IDBDatabaseInfo>>([])
+const showIndexedDbBrowser = ref(false);
+const databases = ref<Array<IDBDatabaseInfo>>([]);
 
 const loadDatabases = async () => {
-  const indexedDbDatabases = await indexedDB.databases()
-
-  console.log(indexedDbDatabases)
+  const indexedDbDatabases = await indexedDB.databases();
 
   for (const database of indexedDbDatabases) {
-    databases.value.push(database)
+    databases.value.push(database);
   }
-}
+};
 
 const onClose = () => {
-  const container = document.getElementById('indexed-db-browser-container')
-
-  if (container) {
-    container.style.display = 'none'
-  }
-}
+  showIndexedDbBrowser.value = false;
+};
 
 onMounted(() => {
-  loadDatabases()
-})
+  loadDatabases();
+});
+
+window.chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === 'OPEN_INDEXED_DB_BROWSER') {
+    showIndexedDbBrowser.value = true;
+  }
+});
 </script>
 
 <template>
   <div
-    style="
-      position: fixed;
-      inset: 0;
-      background-color: white;
-      display: flex;
-      flex-direction: column;
-    "
+    v-if="showIndexedDbBrowser"
+    style="position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column"
     :style="{ 'z-index': Number.MAX_SAFE_INTEGER }"
   >
     <div style="display: flex; flex-grow: 1">
