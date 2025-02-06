@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
 import { ref, onMounted } from 'vue'
 
 const databases = ref<Array<IDBDatabaseInfo>>([])
