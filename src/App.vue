@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 import { ref, onMounted } from 'vue';
 
 const showIndexedDbBrowser = ref(false);
+const bodyOverflowValue = ref('');
 const databases = ref<Array<IDBDatabaseInfo>>([]);
 
 const loadDatabases = async () => {
@@ -13,6 +18,9 @@ const loadDatabases = async () => {
 };
 
 const onClose = () => {
+  document.body.style.overflow = bodyOverflowValue.value;
+  bodyOverflowValue.value = '';
+
   showIndexedDbBrowser.value = false;
 };
 
@@ -22,6 +30,9 @@ onMounted(() => {
 
 window.chrome.runtime.onMessage.addListener((message) => {
   if (message.action === 'OPEN_INDEXED_DB_BROWSER') {
+    bodyOverflowValue.value = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     showIndexedDbBrowser.value = true;
   }
 });
@@ -30,26 +41,39 @@ window.chrome.runtime.onMessage.addListener((message) => {
 <template>
   <div
     v-if="showIndexedDbBrowser"
-    style="position: fixed; inset: 0; background-color: white; display: flex; flex-direction: column"
+    class="position-fixed inset-0 bg-white d-flex flex-column"
     :style="{ 'z-index': Number.MAX_SAFE_INTEGER }"
   >
-    <div style="display: flex; flex-grow: 1">
-      <div style="display: flex; flex-direction: column; width: 300px">
-        <input type="text" placeholder="Search" />
-        <ul style="flex-grow: 1; overflow-y: auto">
+    <div class="d-flex flex-grow-1">
+      <div class="display-flex flex-column border" style="width: 300px">
+        <input class="form-control" type="text" placeholder="Search" />
+        <ul class="flex-grow-1 overflow-y-auto">
           <li v-for="database in databases" :key="database.name">
             {{ database.name }}
           </li>
         </ul>
       </div>
-      <div style="display: flex; flex-direction: column; flex-grow: 1">
-        <div style="display: flex; justify-content: end">
-          <button @click="onClose">Close</button>
+      <div class="d-flex flex-column flex-grow-1 border">
+        <div class="d-flex justify-content-end border">
+          <button class="btn btn-sm btn-secondary" @click="onClose">Close</button>
         </div>
-        <div>
+        <div class="border flex-grow-1">
           <h1>Detail View</h1>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style>
+:host {
+  font-family: 'Arial', sans-serif;
+  color: black;
+}
+</style>
+
+<style scoped>
+.inset-0 {
+  inset: 0;
+}
+</style>
