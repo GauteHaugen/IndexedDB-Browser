@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 
 const extensionContainer = document.createElement('div');
-extensionContainer.id = 'indexed-db-browser-container';
+extensionContainer.id = 'indexed-db-manager-container';
 document.body.appendChild(extensionContainer);
 
 const shadowRoot = extensionContainer.attachShadow({ mode: 'open' });
@@ -16,7 +16,7 @@ fetch(chrome.runtime.getURL('assets/index.css')).then((response) => {
 });
 
 const appContainer = document.createElement('div');
-appContainer.id = 'indexed-db-browser-app';
+appContainer.id = 'indexed-db-manager-app';
 Object.assign(appContainer.style, {
   position: 'absolute',
 });

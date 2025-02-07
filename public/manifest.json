@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "IndexedDB Browser",
-  "description": "A simple IndexedDB browser",
+  "name": "IndexedDB Manager",
+  "description": "A simple IndexedDB manager",
   "version": "1.0",
   "action": {
     "default_icon": "logo.png",
-    "default_title": "IndexedDB Browser"
+    "default_title": "IndexedDB Manager"
   },
   "permissions": ["activeTab", "scripting", "storage"],
   "background": {

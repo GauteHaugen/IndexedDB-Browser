@@ -16,7 +16,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/main.ts',
-      name: 'indexedDbBrowser',
+      name: 'indexedDbManager',
       formats: ['iife'],
       fileName: 'assets/index',
     },

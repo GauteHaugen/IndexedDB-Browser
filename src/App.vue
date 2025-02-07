@@ -5,7 +5,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import { ref, onMounted } from 'vue';
 
-const showIndexedDbBrowser = ref(false);
+const showIndexedDbManager = ref(false);
 const bodyOverflowValue = ref('');
 const databases = ref<Array<IDBDatabaseInfo>>([]);
 
@@ -21,7 +21,7 @@ const onClose = () => {
   document.body.style.overflow = bodyOverflowValue.value;
   bodyOverflowValue.value = '';
 
-  showIndexedDbBrowser.value = false;
+  showIndexedDbManager.value = false;
 };
 
 onMounted(() => {
@@ -29,18 +29,18 @@ onMounted(() => {
 });
 
 window.chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === 'OPEN_INDEXED_DB_BROWSER') {
+  if (message.action === 'OPEN_INDEXED_DB_MANAGER') {
     bodyOverflowValue.value = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    showIndexedDbBrowser.value = true;
+    showIndexedDbManager.value = true;
   }
 });
 </script>
 
 <template>
   <div
-    v-if="showIndexedDbBrowser"
+    v-if="showIndexedDbManager"
     class="position-fixed inset-0 bg-white d-flex flex-column"
     :style="{ 'z-index': Number.MAX_SAFE_INTEGER }"
   >
