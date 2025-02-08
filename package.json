@@ -15,6 +15,7 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "json-editor-vue": "^0.17.3",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

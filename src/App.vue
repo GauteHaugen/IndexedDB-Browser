@@ -1,21 +1,23 @@
 <script setup lang="ts">
+import type { IStore } from './core/store';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
+import { storeKey } from './core/symbols';
+
+import DatabaseNode from '@/components/tree/database_node.vue';
+
+const store = inject<IStore>(storeKey);
+
+if (store === undefined) {
+  throw new Error('Store is not provided');
+}
 
 const showIndexedDbManager = ref(false);
 const bodyOverflowValue = ref('');
-const databases = ref<Array<IDBDatabaseInfo>>([]);
-
-const loadDatabases = async () => {
-  const indexedDbDatabases = await indexedDB.databases();
-
-  for (const database of indexedDbDatabases) {
-    databases.value.push(database);
-  }
-};
 
 const onClose = () => {
   document.body.style.overflow = bodyOverflowValue.value;
@@ -25,7 +27,7 @@ const onClose = () => {
 };
 
 onMounted(() => {
-  loadDatabases();
+  store.initialize();
 });
 
 window.chrome.runtime.onMessage.addListener((message) => {
@@ -48,9 +50,7 @@ window.chrome.runtime.onMessage.addListener((message) => {
       <div class="display-flex flex-column border" style="width: 300px">
         <input class="form-control" type="text" placeholder="Search" />
         <ul class="flex-grow-1 overflow-y-auto">
-          <li v-for="database in databases" :key="database.name">
-            {{ database.name }}
-          </li>
+          <DatabaseNode v-for="[key, database] in store.state.databases.entries()" :database="database" :key="key" />
         </ul>
       </div>
       <div class="d-flex flex-column flex-grow-1 border">

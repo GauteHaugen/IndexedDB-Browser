@@ -1,44 +1,60 @@
-import type { Database } from './database'
+import type { IDatabase } from './database';
 
-export class ObjectStore {
-  public readonly name: string
-  public readonly keyPath: string | string[]
-  public readonly database: Database
+export interface IObjectStore {
+  readonly name: string;
+  readonly keyPath: string | string[];
+  readonly database: IDatabase;
 
-  get indexes() {
-    return new Proxy(
-      {
-        getAll: async () => {},
-      },
-      {
-        get: (target, prop, receiver) => {
-          if (prop in target) {
-            return Reflect.get(target, prop, receiver)
-          }
+  rowCount(): Promise<number>;
+  retrieve(): Promise<Array<unknown>>;
+}
 
-          return new Promise(async (resolve, reject) => {
-            const openDbRequest = indexedDB.open(this.name)
+export class ObjectStore implements IObjectStore {
+  public readonly name: string;
+  public readonly keyPath: string | string[];
+  public readonly database: IDatabase;
 
-            openDbRequest.onsuccess = () => {
-              const db = openDbRequest.result
-
-              const objectStores = db.objectStoreNames
-
-              resolve(objectStores)
-            }
-
-            openDbRequest.onerror = () => {
-              reject(openDbRequest.error)
-            }
-          })
-        },
-      },
-    )
+  constructor(name: string, keyPath: string | string[], database: IDatabase) {
+    this.name = name;
+    this.keyPath = keyPath;
+    this.database = database;
   }
 
-  constructor(name: string, keyPath: string | string[], database: Database) {
-    this.name = name
-    this.keyPath = keyPath
-    this.database = database
+  public async rowCount(): Promise<number> {
+    const db = await this.database.openDb();
+
+    const transaction = db.transaction(this.name, 'readonly');
+    const objectStore = transaction.objectStore(this.name);
+
+    return new Promise((resolve, reject) => {
+      const request = objectStore.count();
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+    });
+  }
+
+  public async retrieve(): Promise<Array<unknown>> {
+    const db = await this.database.openDb();
+
+    const transaction = db.transaction(this.name, 'readonly');
+    const objectStore = transaction.objectStore(this.name);
+
+    return new Promise((resolve, reject) => {
+      const request = objectStore.getAll();
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+    });
   }
 }

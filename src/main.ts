@@ -1,5 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import { storeKey } from './core/symbols';
+import { store } from './core/store';
 
 const extensionContainer = document.createElement('div');
 extensionContainer.id = 'indexed-db-manager-container';
@@ -23,4 +25,7 @@ Object.assign(appContainer.style, {
 shadowRoot.appendChild(appContainer);
 
 const app = createApp(App);
+
+app.provide(storeKey, store);
+
 app.mount(appContainer);
