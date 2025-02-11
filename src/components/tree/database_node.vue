@@ -1,43 +1,21 @@
 <template>
-  <li @click="() => (nodeOpen = !nodeOpen)">{{ database.name }}</li>
-
-  <template v-if="nodeOpen">
-    <ul class="ms-4">
-      <li v-if="isLoadingObjectStores">Loading...</li>
-      <li v-else-if="objectStores.length === 0">No object stores</li>
-      <ObjectStoreNode v-else v-for="objectStore in objectStores" :key="objectStore.name" :objectStore="objectStore" />
-    </ul>
-  </template>
+  <div v-if="database" @click="() => store.navigateToDatabase(database)">{{ database.name ?? 'Name Missing' }}</div>
+  <div v-else>Database Missing</div>
 </template>
 
 <script setup lang="ts">
-import type { IDatabase } from '@/core/models/database';
-import type { IObjectStore } from '@/core/models/object_store';
-import { defineProps, ref, onMounted } from 'vue';
+import type { Database } from '@/core/models/database';
+import type { IStore } from '@/core/store';
+import { storeKey } from '@/core/symbols';
+import { defineProps, inject } from 'vue';
 
-import ObjectStoreNode from '@/components/tree/object_store_node.vue';
+const store = inject<IStore>(storeKey);
 
-const nodeOpen = ref(false);
-const isLoadingObjectStores = ref(false);
-const objectStores = ref(new Array<IObjectStore>());
+if (store === undefined) {
+  throw new Error('Could not find store');
+}
 
-const props = defineProps<{
-  database: IDatabase;
+defineProps<{
+  database: Database;
 }>();
-
-onMounted(() => {
-  loadObjectStores();
-});
-
-const loadObjectStores = async () => {
-  try {
-    isLoadingObjectStores.value = true;
-
-    objectStores.value = await props.database.getObjectStores();
-  } catch (reason) {
-    console.error(reason);
-  } finally {
-    isLoadingObjectStores.value = false;
-  }
-};
 </script>
