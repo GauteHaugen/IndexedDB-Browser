@@ -1,11 +1,11 @@
-import { reactive, readonly, type DeepReadonly, type UnwrapNestedRefs } from 'vue';
+import { reactive } from 'vue';
 import { IndexedDB } from './models/indexed_db';
 import type { Database } from './models/database';
 import type { ObjectStore } from './models/object_store';
 import type { Index } from './models';
 
 export interface IStore {
-  state: DeepReadonly<UnwrapNestedRefs<IState>>;
+  state: IState;
   initialize: () => Promise<void>;
   navigateToDatabase: (database: Database) => Promise<void>;
   navigateToObjectStore: (objectStore: ObjectStore) => Promise<void>;
@@ -88,7 +88,7 @@ async function navigateToIndex(index: Index) {
 }
 
 export const store = <IStore>{
-  state: readonly(state),
+  state,
   initialize,
   navigateToDatabase,
   navigateToObjectStore,
