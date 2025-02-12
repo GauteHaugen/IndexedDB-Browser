@@ -1,18 +1,6 @@
 import { ObjectStore } from './object_store';
 
-export interface IDatabase {
-  readonly name: string;
-  readonly version: number;
-  readonly databaseVersionOutdated: boolean;
-
-  get loadedObjectStores(): Map<string, ObjectStore>;
-
-  getObjectStores(): Promise<Array<ObjectStore>>;
-  getObjectStore(objectStoreName: string): Promise<ObjectStore | null>;
-  openDb(): Promise<IDBDatabase>;
-}
-
-export class Database implements IDatabase {
+export class Database {
   private readonly _objectStores: Map<string, ObjectStore> = new Map();
 
   private _database: IDBDatabase | null = null;

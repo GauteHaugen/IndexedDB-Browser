@@ -1,20 +1,11 @@
-import type { IDatabase } from './database';
+import type { Database } from '@/core/models/database';
 
-export interface IObjectStore {
-  readonly name: string;
-  readonly keyPath: string | string[];
-  readonly database: IDatabase;
-
-  rowCount(): Promise<number>;
-  retrieve(): Promise<Array<unknown>>;
-}
-
-export class ObjectStore implements IObjectStore {
+export class ObjectStore {
   public readonly name: string;
   public readonly keyPath: string | string[];
-  public readonly database: IDatabase;
+  public readonly database: Database;
 
-  constructor(name: string, keyPath: string | string[], database: IDatabase) {
+  constructor(name: string, keyPath: string | string[], database: Database) {
     this.name = name;
     this.keyPath = keyPath;
     this.database = database;
