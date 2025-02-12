@@ -1,19 +1,62 @@
 <template>
   <h1>Object Store</h1>
   <template v-if="store.state.currentRoute.type === 'objectStore'">
-    <p>Database: {{ store.state.currentRoute.databaseName }}</p>
-    <p>Object Store: {{ store.state.currentRoute.objectStoreName }}</p>
+    <p>Database: {{ currentDatabase?.name }}</p>
+    <p>Object Store: {{ currentObjectStore?.name }}</p>
+    <ul>
+      <li></li>
+    </ul>
   </template>
 </template>
 
 <script setup lang="ts">
 import type { IStore } from '@/core/store';
 import { storeKey } from '@/core/symbols';
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 
 const store = inject<IStore>(storeKey);
 
 if (store === undefined) {
   throw new Error('Could not find store');
 }
+
+const currentDatabaseName = computed(() => {
+  if (store.state.currentRoute.type !== 'objectStore') {
+    return undefined;
+  }
+
+  return store.state.currentRoute.databaseName;
+});
+
+const currentObjectStoreName = computed(() => {
+  if (store.state.currentRoute.type !== 'objectStore') {
+    return undefined;
+  }
+
+  return store.state.currentRoute.objectStoreName;
+});
+
+const currentDatabase = computed(() => {
+  if (currentDatabaseName.value === undefined) {
+    return undefined;
+  }
+
+  return store.state.databases.get(currentDatabaseName.value);
+});
+
+const currentObjectStore = computed(() => {
+  if (currentObjectStoreName.value === undefined || currentDatabase.value === undefined) {
+    return undefined;
+  }
+
+  return currentDatabase.value.loadedObjectStores.get(currentObjectStoreName.value);
+});
+
+const currentObjectStoreProperties = computed(() => {
+  if (currentObjectStore.value === undefined) {
+    return undefined;
+  }
+
+  currentObjectStore.value.loadedProperties;
+});
 </script>
