@@ -20,6 +20,27 @@ export class ObjectStore implements IObjectStore {
     this.database = database;
   }
 
+  public async retrieveObjectStorePropterties(): Promise<Set<string>> {
+    const db = await this.database.openDb();
+
+    const transaction = db.transaction(this.name, 'readonly');
+    const objectStore = transaction.objectStore(this.name);
+
+    const cursor = objectStore.openCursor();
+
+    const propertySet = new Set<string>();
+
+    return new Promise((resolve, reject) => {
+      cursor.onsuccess = () => {
+
+      };
+
+      cursor.onerror = () => {
+        reject(cursor.error);
+      };
+    });
+  }
+
   public async rowCount(): Promise<number> {
     const db = await this.database.openDb();
 
