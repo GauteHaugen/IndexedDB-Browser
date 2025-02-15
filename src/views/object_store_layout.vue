@@ -4,7 +4,7 @@
     <p>Database: {{ currentDatabase?.name }}</p>
     <p>Object Store: {{ currentObjectStore?.name }}</p>
     <ul>
-      <li></li>
+      <li v-for="property in currentObjectStoreProperties" :key="property">{{ property }}</li>
     </ul>
   </template>
 </template>
@@ -41,7 +41,7 @@ const currentDatabase = computed(() => {
     return undefined;
   }
 
-  return store.state.databases.get(currentDatabaseName.value);
+  return store.state.indexedDB.filteredDatabases.get(currentDatabaseName.value);
 });
 
 const currentObjectStore = computed(() => {
@@ -49,7 +49,7 @@ const currentObjectStore = computed(() => {
     return undefined;
   }
 
-  return currentDatabase.value.loadedObjectStores.get(currentObjectStoreName.value);
+  return currentDatabase.value.filteredObjectStores.get(currentObjectStoreName.value);
 });
 
 const currentObjectStoreProperties = computed(() => {
@@ -57,6 +57,6 @@ const currentObjectStoreProperties = computed(() => {
     return undefined;
   }
 
-  currentObjectStore.value.loadedProperties;
+  return currentObjectStore.value.propertySet;
 });
 </script>

@@ -1,7 +1,8 @@
 import { ObjectStore } from './object_store';
 
 export class Database {
-  private readonly _objectStores: Map<string, ObjectStore> = new Map();
+  private readonly _objectStores = new Map<string, ObjectStore>();
+  private readonly _filteredObjectStores = new Map<string, ObjectStore>();
 
   private _database: IDBDatabase | null = null;
   private _databaseVersionOutdated: boolean = false;
@@ -9,17 +10,51 @@ export class Database {
   public readonly name: string;
   public readonly version: number;
 
-  public get loadedObjectStores(): Map<string, ObjectStore> {
+  public get loadedObjectStores() {
     return this._objectStores;
   }
 
-  public get databaseVersionOutdated(): boolean {
+  public get filteredObjectStores() {
+    return this._filteredObjectStores;
+  }
+
+  public get databaseVersionOutdated() {
     return this._databaseVersionOutdated;
   }
 
   constructor(name: string, version: number) {
     this.name = name;
     this.version = version;
+  }
+
+  public applyFilter(search: string | null) {
+    console.log('Applying search ' + search);
+
+    this._filteredObjectStores.clear();
+
+    let objectStores = Array.from(this.loadedObjectStores.values());
+
+    if (search) {
+      objectStores = objectStores.filter((objectStore) => objectStore.matchSearch(search));
+    }
+
+    for (const objectStore of objectStores) {
+      this._filteredObjectStores.set(objectStore.name, objectStore);
+    }
+  }
+
+  public matchSearch(search: string) {
+    if (this.name.toLowerCase().includes(search)) {
+      return true;
+    }
+
+    const objectStores = Array.from(this.loadedObjectStores.values());
+
+    if (objectStores.some((objectStore) => objectStore.matchSearch(search))) {
+      return true;
+    }
+
+    return false;
   }
 
   public async getObjectStores(): Promise<Array<ObjectStore>> {

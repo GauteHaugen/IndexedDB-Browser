@@ -7,13 +7,16 @@ import type { Index } from './models';
 export interface IStore {
   state: IState;
   initialize: () => Promise<void>;
+  refreshDatabases: () => Promise<void>;
+  applyFilter: (search: string | null) => void;
   navigateToDatabase: (database: Database) => Promise<void>;
   navigateToObjectStore: (objectStore: ObjectStore) => Promise<void>;
   navigateToIndex: (index: Index) => Promise<void>;
 }
 
 export interface IState {
-  databases: Map<string, Database>;
+  indexedDB: IndexedDB;
+  registerSearch: string | null;
   currentRoute: IRouteInformation;
 }
 
@@ -37,30 +40,16 @@ export type IRouteInformation =
       indexName: string;
     };
 
-const indexedDbHelper = new IndexedDB();
 const state = reactive<IState>({
-  databases: new Map<string, Database>(),
+  indexedDB: new IndexedDB(),
+  registerSearch: null,
   currentRoute: {
     type: 'welcome',
   },
 });
 
 async function initialize() {
-  await loadDatabases();
-}
-
-async function loadDatabases() {
-  const databases = await indexedDbHelper.getDatabases();
-
-  for (const database of databases) {
-    /* const objectStores = */ await database.getObjectStores();
-
-    // for (const objectStore of objectStores) {
-    // TODO: Add method to load indexes
-    // }
-
-    state.databases.set(database.name, database);
-  }
+  refreshDatabases();
 }
 
 async function navigateToDatabase(database: Database) {
@@ -87,9 +76,27 @@ async function navigateToIndex(index: Index) {
   };
 }
 
+async function refreshDatabases() {
+  await state.indexedDB.getDatabases();
+
+  applyFilter(null);
+}
+
+function applyFilter(search: string | null) {
+  if (search === null || search.trim().length === 0) {
+    state.registerSearch = null;
+  } else {
+    state.registerSearch = search.trim().toLowerCase();
+  }
+
+  state.indexedDB.applyFilter(state.registerSearch);
+}
+
 export const store = <IStore>{
   state,
   initialize,
+  refreshDatabases,
+  applyFilter,
   navigateToDatabase,
   navigateToObjectStore,
   navigateToIndex,

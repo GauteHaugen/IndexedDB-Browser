@@ -1,15 +1,42 @@
 import { Database } from './database';
 
 export class IndexedDB {
-  private readonly _databases: Map<string, Database> = new Map();
+  private readonly _databases = new Map<string, Database>();
+  private readonly _filteredDatabases = new Map<string, Database>();
 
-  public async getDatabases(): Promise<Array<Database>> {
+  public get loadedDatabases() {
+    return this._databases;
+  }
+
+  public get filteredDatabases() {
+    return this._filteredDatabases;
+  }
+
+  public applyFilter(search: string | null) {
+    console.log('Applying search ' + search);
+
+    this._filteredDatabases.clear();
+
+    let databases = Array.from(this.loadedDatabases.values());
+
+    if (search) {
+      databases = databases.filter((database) => database.matchSearch(search));
+    }
+
+    for (const database of databases) {
+      database.applyFilter(search);
+
+      this._filteredDatabases.set(database.name, database);
+    }
+  }
+
+  public async getDatabases(): Promise<void> {
     this._databases.clear();
 
     const databases = await indexedDB.databases();
 
-    const databasesArray = databases
-      .map((indexedDatabase) => {
+    const databasesPromiseArray = databases
+      .map(async (indexedDatabase) => {
         const { name, version } = indexedDatabase;
 
         if (name === undefined || version === undefined) {
@@ -19,13 +46,15 @@ export class IndexedDB {
 
         const database = new Database(name, version);
 
+        await database.getObjectStores();
+
         this._databases.set(name, database);
 
         return database;
       })
       .filter((database) => database !== undefined);
 
-    return databasesArray;
+    await Promise.allSettled(databasesPromiseArray);
   }
 
   public async getDatabase(databaseName: string): Promise<Database | null> {
