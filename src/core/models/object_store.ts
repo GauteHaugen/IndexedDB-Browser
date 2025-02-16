@@ -56,8 +56,6 @@ export class ObjectStore {
   }
 
   public async retrieveObjectStoreProperties(): Promise<Set<string>> {
-    console.log('fetching properties');
-
     this.propertySet.clear();
 
     const db = await this.database.openDb();
@@ -69,8 +67,6 @@ export class ObjectStore {
 
     return new Promise((resolve, reject) => {
       cursorRequest.onsuccess = (event) => {
-        console.log('fetching properties - Cursor success');
-
         const cursor = event.target.result;
 
         if (cursor) {
@@ -103,31 +99,87 @@ export class ObjectStore {
     return new Promise((resolve, reject) => {
       const request = objectStore.count();
 
-      request.onerror = () => {
-        reject(request.error);
-      };
-
       request.onsuccess = () => {
         resolve(request.result);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
       };
     });
   }
 
-  public async retrieve(): Promise<Array<unknown>> {
+  public async retrievePage(pageOffset: number = 0, pageSize: number = 25): Promise<Array<unknown>> {
     const db = await this.database.openDb();
 
     const transaction = db.transaction(this.name, 'readonly');
     const objectStore = transaction.objectStore(this.name);
+    const cursorRequest = objectStore.openCursor();
 
     return new Promise((resolve, reject) => {
-      const request = objectStore.getAll();
+      const result = new Array<any>();
 
-      request.onerror = () => {
-        reject(request.error);
+      let advanced = false;
+
+      cursorRequest.onsuccess = (event) => {
+        const cursor = event.target.result;
+
+        if (cursor === null) {
+          resolve(result);
+          return;
+        }
+
+        if (advanced === false && pageOffset > 0) {
+          cursor.advance(pageOffset * pageSize);
+          advanced = true;
+          return;
+        }
+
+        result.push(cursor.value);
+
+        if (result.length < pageSize) {
+          cursor.continue();
+          return;
+        }
+
+        resolve(result);
       };
 
-      request.onsuccess = () => {
-        resolve(request.result);
+      cursorRequest.onerror = (event) => {
+        reject(event.target.result);
+      };
+    });
+  }
+
+  public async retrieveDistinctValues(property: string) {
+    const db = await this.database.openDb();
+
+    const transaction = db.transaction(this.name, 'readonly');
+    const objectStore = transaction.objectStore(this.name);
+    const cursorRequest = objectStore.openCursor();
+
+    return new Promise((resolve, reject) => {
+      const result = new Map<string, number>();
+
+      cursorRequest.onsuccess = (event) => {
+        const cursor = event.target.result;
+
+        if (cursor === null) {
+          resolve(result);
+          return;
+        }
+
+        const row = cursor.value;
+        const value = row[property]?.toString() ?? 'NULL';
+        const count = result.get(value) ?? 0;
+
+        result.set(value, count + 1);
+
+        cursor.continue();
+      };
+
+      cursorRequest.onerror = (event) => {
+        reject(event.target.result);
       };
     });
   }
