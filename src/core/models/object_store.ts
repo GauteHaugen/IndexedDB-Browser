@@ -83,7 +83,6 @@ export class ObjectStore {
       };
 
       cursorRequest.onerror = (event) => {
-        console.log('fetching properties - Cursor error');
         console.error(event);
         reject(event.target.result);
       };

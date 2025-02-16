@@ -13,8 +13,6 @@ export class IndexedDB {
   }
 
   public applyFilter(search: string | null) {
-    console.log('Applying search ' + search);
-
     this._filteredDatabases.clear();
 
     let databases = Array.from(this.loadedDatabases.values());

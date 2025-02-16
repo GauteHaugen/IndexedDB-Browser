@@ -28,8 +28,6 @@ export class Database {
   }
 
   public applyFilter(search: string | null) {
-    console.log('Applying search ' + search);
-
     this._filteredObjectStores.clear();
 
     let objectStores = Array.from(this.loadedObjectStores.values());
