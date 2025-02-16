@@ -1,8 +1,15 @@
 <template>
-  <div class="display-flex flex-column" style="width: 300px">
-    <input class="form-control" type="text" placeholder="Search..." v-model="searchModel" />
+  <div class="d-flex flex-column">
+    <div class="d-flex">
+      <input class="form-control" type="text" placeholder="Search..." v-model="searchModel" />
+
+      <button class="btn btn-secondary" @click="store.refreshDatabases">Refresh</button>
+    </div>
+
     <div class="d-flex flex-column flex-grow-1 overflow-y-auto">
+      <p v-if="store.state.loadingRegister">loading</p>
       <TreeNode
+        v-else
         v-for="[key, database] in store.state.indexedDB.filteredDatabases"
         :render-sub-nodes="database.filteredObjectStores.size > 0"
         :key="key"

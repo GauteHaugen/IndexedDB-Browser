@@ -18,6 +18,8 @@ export interface IState {
   indexedDB: IndexedDB;
   registerSearch: string | null;
   currentRoute: IRouteInformation;
+  loadingRegister: boolean;
+  loadingDetail: boolean;
 }
 
 export type IRouteInformation =
@@ -46,10 +48,18 @@ const state = reactive<IState>({
   currentRoute: {
     type: 'welcome',
   },
+  loadingRegister: false,
+  loadingDetail: false,
 });
 
 async function initialize() {
   refreshDatabases();
+}
+
+function navigateToWelcome() {
+  state.currentRoute = {
+    type: 'welcome',
+  };
 }
 
 async function navigateToDatabase(database: Database) {
@@ -77,9 +87,19 @@ async function navigateToIndex(index: Index) {
 }
 
 async function refreshDatabases() {
-  await state.indexedDB.getDatabases();
+  try {
+    state.loadingRegister = true;
+    state.loadingDetail = true;
 
-  applyFilter(null);
+    await state.indexedDB.getDatabases();
+
+    applyFilter(state.registerSearch);
+
+    navigateToWelcome();
+  } finally {
+    state.loadingRegister = false;
+    state.loadingDetail = false;
+  }
 }
 
 function applyFilter(search: string | null) {

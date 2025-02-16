@@ -52,7 +52,7 @@ window.chrome.runtime.onMessage.addListener((message) => {
     class="position-fixed inset-0 bg-white d-flex flex-column"
     :style="{ 'z-index': Number.MAX_SAFE_INTEGER }"
   >
-    <SplitContainer :initial-size="400" :container1-options="{ minSize: 150, maxSize: 800 }" :container2-options="{ minSize: 300 }">
+    <SplitContainer :initial-size="300" :container1-options="{ minSize: 300, maxSize: 800 }" :container2-options="{ minSize: 300 }">
       <template #container1>
         <IndexedDBTreeView />
       </template>
