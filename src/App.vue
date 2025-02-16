@@ -3,11 +3,13 @@ import type { IStore } from './core/store';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import { ref, onMounted, inject } from 'vue';
 import { storeKey } from './core/symbols';
 
+import SplitContainer from '@/components/util/split_container.vue';
 import IndexedDBTreeView from '@/components/tree/indexed_db_tree_view.vue';
 import WelcomeLayout from './views/welcome_layout.vue';
 import DatabaseLayout from './views/database_layout.vue';
@@ -50,23 +52,26 @@ window.chrome.runtime.onMessage.addListener((message) => {
     class="position-fixed inset-0 bg-white d-flex flex-column"
     :style="{ 'z-index': Number.MAX_SAFE_INTEGER }"
   >
-    <div class="d-flex flex-grow-1">
-      <IndexedDBTreeView />
+    <SplitContainer :initial-size="400" :container1-options="{ minSize: 150, maxSize: 800 }" :container2-options="{ minSize: 300 }">
+      <template #container1>
+        <IndexedDBTreeView />
+      </template>
 
-      <div class="border h-100"></div>
-      <div class="d-flex flex-column flex-grow-1">
-        <div class="d-flex justify-content-end">
-          <button class="btn btn-sm btn-secondary" @click="onClose">Close</button>
+      <template #container2>
+        <div class="d-flex flex-column flex-grow-1">
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-sm btn-secondary" @click="onClose">Close</button>
+          </div>
+          <hr />
+          <div class="border flex-grow-1">
+            <WelcomeLayout v-if="store.state.currentRoute.type === 'welcome'" />
+            <DatabaseLayout v-if="store.state.currentRoute.type === 'database'" />
+            <ObjectStoreLayout v-if="store.state.currentRoute.type === 'objectStore'" />
+            <IndexLayout v-if="store.state.currentRoute.type === 'index'" />
+          </div>
         </div>
-        <hr />
-        <div class="border flex-grow-1">
-          <WelcomeLayout v-if="store.state.currentRoute.type === 'welcome'" />
-          <DatabaseLayout v-if="store.state.currentRoute.type === 'database'" />
-          <ObjectStoreLayout v-if="store.state.currentRoute.type === 'objectStore'" />
-          <IndexLayout v-if="store.state.currentRoute.type === 'index'" />
-        </div>
-      </div>
-    </div>
+      </template>
+    </SplitContainer>
   </div>
 </template>
 
